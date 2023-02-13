@@ -1,0 +1,7 @@
+#ifndef HUFFMANALGORITHM_H
+#define HUFFMANALGORITHM_H
+
+
+
+
+#endif /* HUFFMANALGORITHM_H */
