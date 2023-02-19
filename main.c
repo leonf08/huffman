@@ -2,7 +2,14 @@
 
 #include "TextFileHandler.h"
 
-#define MAX_SIZE 256U
+#define MAX_NUM_OF_CHARS 256U
+
+typedef struct {
+    unsigned numOfUniqueChars;
+    unsigned freq[MAX_NUM_OF_CHARS];
+} tableOfFrequencies_t;
+
+tableOfFrequencies_t freqTable;
 
 
 int main(int argc, char **argv)
