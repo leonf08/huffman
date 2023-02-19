@@ -9,7 +9,7 @@ typedef struct {
     unsigned freq[MAX_NUM_OF_CHARS];
 } tableOfFrequencies_t;
 
-tableOfFrequencies_t freqTable;
+tableOfFrequencies_t freqTable = {0, {0}};
 
 
 int main(int argc, char **argv)
