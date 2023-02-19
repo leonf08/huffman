@@ -1,13 +1,8 @@
 #include <stdio.h>
 
+#include "main.h"
 #include "TextFileHandler.h"
 
-#define MAX_NUM_OF_CHARS 256U
-
-typedef struct {
-    unsigned numOfUniqueChars;
-    unsigned freq[MAX_NUM_OF_CHARS];
-} tableOfFrequencies_t;
 
 tableOfFrequencies_t freqTable = {0, {0}};
 
