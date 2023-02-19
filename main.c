@@ -15,11 +15,11 @@ tableOfFrequencies_t freqTable;
 int main(int argc, char **argv)
 {
     char filename[] = "temp.txt";
-    int hashmap[MAX_SIZE] = {0};
+    int hashmap[MAX_NUM_OF_CHARS] = {0};
 
     HandleTextFile(filename, hashmap);
 
-    for (int i = 0; i < MAX_SIZE; i++) {
+    for (int i = 0; i < MAX_NUM_OF_CHARS; i++) {
         printf("%d-th element: %d\n", i, hashmap[i]);
     }
 }
