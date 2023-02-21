@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-/**** TYPES *******************************************************************/
+#include "main.h"
+#include "HuffmanAlgorithm.h"
+
+/**** TYPES DEFINITIONS *******************************************************/
 struct HeapNode {
     char item;
     unsigned freq;
     struct HeapNode *left, *right;
 };
-
-typedef struct HeapNode *HeapNodePtr;
 
 struct Heap {
     unsigned size;
@@ -16,7 +18,11 @@ struct Heap {
     HeapNodePtr *array;
 };
 
+typedef struct HeapNode *HeapNodePtr;
 typedef struct Heap *HeapPtr;
+
+static unsigned int treeHeight = 0;
+static unsigned char buffer[MAX_CHARS];
 
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
 static HeapNodePtr createNewNode(char item, unsigned freq);
@@ -27,10 +33,8 @@ static void swapNodes(HeapNodePtr *node_a, HeapNodePtr *node_b);
 static HeapNodePtr createNewNode(char item, unsigned freq)
 {
     HeapNodePtr temp = (HeapNodePtr)malloc(sizeof(struct HeapNode));
-    if (temp == NULL)
-    {
-        fprintf(stderr, "Failed to allocate memory");
-        exit(1);
+    if (!isMemoryAllocated(temp)) {
+        exit(EXIT_FAILURE);
     }
 
     temp->item = item;
@@ -43,19 +47,15 @@ static HeapNodePtr createNewNode(char item, unsigned freq)
 static HeapPtr initHeap(unsigned capacity)
 {
     HeapPtr temp = (HeapPtr)malloc(sizeof(struct Heap));
-    if (temp == NULL)
-    {
-        fprintf(stderr, "Failed to allocate memory");
-        exit(1);
+    if (!isMemoryAllocated(temp)) {
+        exit(EXIT_FAILURE);
     }
 
     temp->capacity = capacity;
     temp->size = 0;
     temp->array = (HeapNodePtr *)malloc(capacity*sizeof(HeapNodePtr));
-    if (temp->array == NULL)
-    {
-        fprintf(stderr, "Failed to allocate memory");
-        exit(1);
+    if (!isMemoryAllocated(temp->array)) {
+        exit(EXIT_FAILURE);
     }
 
     return temp;
@@ -108,7 +108,7 @@ static void insertNodeHeap(HeapPtr heap, HeapNodePtr node)
 {
     if(heap->capacity == heap->size) {
         fprintf(stderr, "Heap overflow");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     heap->size++;
@@ -135,12 +135,17 @@ static int isLeaf(HeapNodePtr root) {
   return !(root->left) && !(root->right);
 }
 
-static HeapPtr createAndBuildHeap(const char item[], const int freq[], int size)
+static HeapPtr createAndBuildHeap(const tableOfFrequencies_t *freqTable)
 {
+    unsigned int size = freqTable->numOfUniqueChars;
     HeapPtr heap = initHeap(size);
 
-    for (int i = 0; i < size; i++) {
-        heap->array[i] = createNewNode(item[i], freq[i]);
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < MAX_CHARS; i++) {
+        if (freqTable->freq[i] != 0) {
+            heap->array[j] = createNewNode((char)i, freqTable->freq[i]);
+            j++;
+        }
     }
 
     heap->size = size;
@@ -149,10 +154,10 @@ static HeapPtr createAndBuildHeap(const char item[], const int freq[], int size)
     return heap;
 }
 
-static HeapNodePtr buildHuffmanTree(const char item[], const int freq[], int size)
+static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable)
 {
     HeapNodePtr left, right, top;
-    HeapPtr heap = createAndBuildHeap(item, freq, size);
+    HeapPtr heap = createAndBuildHeap(freqTable);
 
     while (!checkIfSizeOne(heap)) {
         left = extractMin(heap);
@@ -164,12 +169,35 @@ static HeapNodePtr buildHuffmanTree(const char item[], const int freq[], int siz
         top->right = right;
 
         insertNodeHeap(heap, top);
+        treeHeight++;
     }
 
     return extractMin(heap);
 }
 
-static void encodeItemsOfTree(HeapNodePtr root)
+static void encodeItemsOfTree(HeapNodePtr root, code_t *codesTable, unsigned int depth)
+{
+    if (root->left) {
+        buffer[depth] = 0;
+        encodeItemsOfTree(root->left, codesTable, depth + 1);
+    }
+
+    if (root->right) {
+        buffer[depth] = 1;
+        encodeItemsOfTree(root->right, codesTable, depth + 1);
+    }
+
+    if (isLeaf(root)) {
+        codesTable[root->item].character = root->item;
+        codesTable[root->item].code = (unsigned char *)malloc(sizeof(buffer));
+        if (!isMemoryAllocated(codesTable[root->item].code)) {
+            exit(EXIT_FAILURE);
+        }
+        memcpy(codesTable[root->item].code, buffer, sizeof(buffer));
+    }
+}
+
+void compressData(unsigned char *line)
 {
     
 }
