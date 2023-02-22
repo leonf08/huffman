@@ -7,22 +7,24 @@
 
 /**** TYPES DEFINITIONS *******************************************************/
 struct HeapNode {
-    char item;
-    unsigned freq;
+    unsigned char item;
+    unsigned int freq;
     struct HeapNode *left, *right;
 };
 
 struct Heap {
-    unsigned size;
-    unsigned capacity;
+    unsigned int size;
+    unsigned int capacity;
     HeapNodePtr *array;
 };
 
 typedef struct HeapNode *HeapNodePtr;
 typedef struct Heap *HeapPtr;
+typedef struct {unsigned char *code;} Code_t;
 
 static unsigned int treeHeight = 0;
 static unsigned char buffer[MAX_CHARS];
+static Code_t codesTable[MAX_CHARS];
 
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
 static HeapNodePtr createNewNode(char item, unsigned freq);
@@ -175,29 +177,36 @@ static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable)
     return extractMin(heap);
 }
 
-static void encodeItemsOfTree(HeapNodePtr root, code_t *codesTable, unsigned int depth)
+static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int depth)
 {
     if (root->left) {
-        buffer[depth] = 0;
+        buffer[depth] = '0';
+        buffer[depth + 1] = '\0';
         encodeItemsOfTree(root->left, codesTable, depth + 1);
     }
 
     if (root->right) {
-        buffer[depth] = 1;
+        buffer[depth] = '1';
+        buffer[depth + 1] = '\0';
         encodeItemsOfTree(root->right, codesTable, depth + 1);
     }
 
     if (isLeaf(root)) {
-        codesTable[root->item].character = root->item;
-        codesTable[root->item].code = (unsigned char *)malloc(sizeof(buffer));
+        codesTable[root->item].code = (unsigned char *)malloc((depth + 1)*sizeof(unsigned char));
         if (!isMemoryAllocated(codesTable[root->item].code)) {
             exit(EXIT_FAILURE);
         }
-        memcpy(codesTable[root->item].code, buffer, sizeof(buffer));
+        strcpy(codesTable[root->item].code, buffer);
     }
 }
 
-void compressData(unsigned char *line)
+unsigned char *getCodeForChar(unsigned char ch)
 {
-    
+    return codesTable[ch].code;
+}
+
+void compressData(const tableOfFrequencies_t *freqTable)
+{
+    HeapNodePtr root = buildHuffmanTree(freqTable);    
+    encodeItemsOfTree(root, codesTable, 0);
 }

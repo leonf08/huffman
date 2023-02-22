@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #include "main.h"
 #include "TextFileHandler.h"
+#include "HuffmanAlgorithm.h"
 
 
 static tableOfFrequencies_t * buildFreqTable(const FILE *inputFilePtr)
@@ -22,36 +22,61 @@ static tableOfFrequencies_t * buildFreqTable(const FILE *inputFilePtr)
     return freqTable;
 }
 
-static size_t readFileInBuffer(const FILE *inputFilePtr, unsigned char *buffer, const long int fileSize)
+static void processInputFile(const FILE *inputFilePtr, const char *outputFileName)
 {
-    size_t count = fread(buffer, sizeof(unsigned char), fileSize, inputFilePtr);
+    unsigned int ch;
+    unsigned char buffer = 0;
+    unsigned char *code;
 
-    return count;
+    FILE *outputFilePtr = fopen(outputFileName, "wb");
+    if (outputFilePtr == NULL) {
+        fprintf(stderr, "Failed to open file %s", outputFileName);
+        exit(EXIT_FAILURE);
+    }
+
+    while ((ch = fgetc(inputFilePtr)) != EOF) {
+        unsigned int bit_count  = 0;
+        code = getCodeForChar(ch);
+        while (*code != '\0') {
+            *code = *code - '0';
+            buffer |= (*code << (7 - bit_count));
+            code++;
+            bit_count++;
+
+            if (bit_count == 8) {
+                writeCompressedDataInFile(outputFilePtr, buffer);
+                bit_count = 0, buffer = 0;
+            }
+        }
+
+        if (bit_count > 0) {
+            writeCompressedDataInFile(outputFilePtr, buffer);
+            buffer = 0;
+        }
+    }
 }
 
-void archiveFile(const char filename[])
+static void writeCompressedDataInFile(const FILE *outputFilePtr, unsigned char buffer)
 {
-    FILE *inputFilePtr = fopen(filename, "r");
+    size_t numOfBytes = fwrite(&buffer, sizeof(unsigned char), 1, outputFilePtr);
+    if (numOfBytes != 1) {
+        fprintf(stderr, "Writing error");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void archiveFile(const char *inputFileName, const char *outputFileName)
+{
+    FILE *inputFilePtr = fopen(inputFileName, "r");
     if (inputFilePtr == NULL) {
-        fprintf(stderr, "Failed to open file %s", filename);
-        exit(1);
+        fprintf(stderr, "Failed to open file %s", inputFileName);
+        exit(EXIT_FAILURE);
     }
 
     tableOfFrequencies_t *freqTable = buildFreqTable(inputFilePtr);
+    compressData(freqTable);
 
-    long int fileSize = ftell(inputFilePtr);
     rewind(inputFilePtr);
 
-    unsigned char *buffer = (unsigned char *)malloc(sizeof(unsigned char) * fileSize);
-    if (!isMemoryAllocated(buffer)) {
-        exit(EXIT_FAILURE);
-    }
-
-    size_t count = readFileInBuffer(inputFilePtr, buffer, fileSize);
-    if (count != fileSize) {
-        fprintf(stderr, "Reading error");
-        exit(EXIT_FAILURE);
-    }
-
-    
+        
 }

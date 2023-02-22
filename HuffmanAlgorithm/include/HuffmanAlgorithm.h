@@ -1,12 +1,9 @@
 #ifndef HUFFMANALGORITHM_H
 #define HUFFMANALGORITHM_H
 
-/**** TYPES DEFINITIONS *******************************************************/
-typedef struct {
-    unsigned char character;
-    unsigned char *code;
-} code_t;
+/**** EXTERNAL FUNCTIONS DECLARATIONS *****************************************/
 
-
+unsigned char *getCodeForChar(unsigned char ch);
+void compressData(const tableOfFrequencies_t *freqTable);
 
 #endif /* HUFFMANALGORITHM_H */
