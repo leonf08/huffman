@@ -7,9 +7,16 @@
 #include "TextFileHandler.h"
 #include "HuffmanAlgorithm.h"
 
+/**** LOCAL FUNCTION DECLARATIONS *********************************************/
+
+static tableOfFrequencies_t * buildFreqTable(FILE *inputFilePtr);
+static void processInputFile(FILE *inputFilePtr, const char *outputFileName);
+static void writeCompressedDataInFile(FILE *outputFilePtr, unsigned char buffer);
+
+
 /**** LOCAL FUNCTION DEFINITIONS **********************************************/
 
-static tableOfFrequencies_t * buildFreqTable(const FILE *inputFilePtr)
+static tableOfFrequencies_t * buildFreqTable(FILE *inputFilePtr)
 {
     tableOfFrequencies_t *freqTable = (tableOfFrequencies_t *)malloc(sizeof(tableOfFrequencies_t));
     if (!isMemoryAllocated(freqTable)) {
@@ -19,17 +26,20 @@ static tableOfFrequencies_t * buildFreqTable(const FILE *inputFilePtr)
     int c;
     while ((c = fgetc(inputFilePtr)) != EOF)
     {
+        if (freqTable->freq[c] == 0) {
+            freqTable->numOfUniqueChars++;
+        }
         freqTable->freq[c]++;
     }
 
     return freqTable;
 }
 
-static void processInputFile(const FILE *inputFilePtr, const char *outputFileName)
+static void processInputFile(FILE *inputFilePtr, const char *outputFileName)
 {
     unsigned int ch;
     unsigned char buffer = 0;
-    unsigned char *code;
+    char *code;
 
     FILE *outputFilePtr = fopen(outputFileName, "wb");
     if (outputFilePtr == NULL) {
@@ -62,7 +72,7 @@ static void processInputFile(const FILE *inputFilePtr, const char *outputFileNam
     fclose(outputFilePtr);
 }
 
-static void writeCompressedDataInFile(const FILE *outputFilePtr, unsigned char buffer)
+static void writeCompressedDataInFile(FILE *outputFilePtr, unsigned char buffer)
 {
     size_t numOfBytes = fwrite(&buffer, sizeof(unsigned char), 1, outputFilePtr);
     if (numOfBytes != 1) {
@@ -77,7 +87,7 @@ void archiveFile(const char *inputFileName, const char *outputFileName)
 {
     FILE *inputFilePtr = fopen(inputFileName, "r");
     if (inputFilePtr == NULL) {
-        fprintf(stderr, "Failed to open file %s", inputFileName);
+        perror("Failed to open file");
         exit(EXIT_FAILURE);
     }
 

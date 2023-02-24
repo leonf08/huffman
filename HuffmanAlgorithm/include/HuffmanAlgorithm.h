@@ -3,7 +3,7 @@
 
 /**** GLOBAL FUNCTIONS DECLARATIONS *******************************************/
 
-unsigned char *getCodeForChar(unsigned char ch);
+char *getCodeForChar(unsigned char ch);
 void compressData(const tableOfFrequencies_t *freqTable);
 
 #endif /* HUFFMANALGORITHM_H */

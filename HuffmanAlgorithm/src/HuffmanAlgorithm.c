@@ -15,20 +15,20 @@ struct HeapNode {
     struct HeapNode *left, *right;
 };
 
+typedef struct HeapNode *HeapNodePtr;
+
 struct Heap {
     unsigned int size;
     unsigned int capacity;
     HeapNodePtr *array;
 };
 
-typedef struct HeapNode *HeapNodePtr;
 typedef struct Heap *HeapPtr;
-typedef struct {unsigned char *code;} Code_t;
+typedef struct {char *code;} Code_t;
 
 /**** STATIC VARIABLES DEFINITIONS ********************************************/
 
-static unsigned int treeHeight = 0;
-static unsigned char buffer[MAX_CHARS];
+static char buffer[MAX_CHARS];
 static Code_t codesTable[MAX_CHARS];
 
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
@@ -178,7 +178,6 @@ static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable)
         top->right = right;
 
         insertNodeHeap(heap, top);
-        treeHeight++;
     }
 
     return extractMin(heap);
@@ -199,7 +198,7 @@ static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int
     }
 
     if (isLeaf(root)) {
-        codesTable[root->item].code = (unsigned char *)malloc((depth + 1)*sizeof(unsigned char));
+        codesTable[root->item].code = (char *)malloc((depth + 1)*sizeof(char));
         if (!isMemoryAllocated(codesTable[root->item].code)) {
             exit(EXIT_FAILURE);
         }
@@ -209,7 +208,7 @@ static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int
 
 /**** GLOBAL FUNCTION DEFINITIONS *********************************************/
 
-unsigned char *getCodeForChar(unsigned char ch)
+char *getCodeForChar(unsigned char ch)
 {
     return codesTable[ch].code;
 }
