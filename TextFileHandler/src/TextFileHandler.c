@@ -1,3 +1,5 @@
+/**** INCLUDES ****************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -5,6 +7,7 @@
 #include "TextFileHandler.h"
 #include "HuffmanAlgorithm.h"
 
+/**** LOCAL FUNCTION DEFINITIONS **********************************************/
 
 static tableOfFrequencies_t * buildFreqTable(const FILE *inputFilePtr)
 {
@@ -54,6 +57,9 @@ static void processInputFile(const FILE *inputFilePtr, const char *outputFileNam
             buffer = 0;
         }
     }
+
+    fclose(inputFilePtr);
+    fclose(outputFilePtr);
 }
 
 static void writeCompressedDataInFile(const FILE *outputFilePtr, unsigned char buffer)
@@ -64,6 +70,8 @@ static void writeCompressedDataInFile(const FILE *outputFilePtr, unsigned char b
         exit(EXIT_FAILURE);
     }
 }
+
+/**** GLOBAL FUNCTION DEFINITIONS *********************************************/
 
 void archiveFile(const char *inputFileName, const char *outputFileName)
 {
@@ -78,5 +86,5 @@ void archiveFile(const char *inputFileName, const char *outputFileName)
 
     rewind(inputFilePtr);
 
-        
+    processInputFile(inputFilePtr, outputFileName);        
 }

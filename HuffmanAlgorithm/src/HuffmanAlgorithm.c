@@ -1,3 +1,5 @@
+/**** INCLUDES ****************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +8,7 @@
 #include "HuffmanAlgorithm.h"
 
 /**** TYPES DEFINITIONS *******************************************************/
+
 struct HeapNode {
     unsigned char item;
     unsigned int freq;
@@ -22,16 +25,20 @@ typedef struct HeapNode *HeapNodePtr;
 typedef struct Heap *HeapPtr;
 typedef struct {unsigned char *code;} Code_t;
 
+/**** STATIC VARIABLES DEFINITIONS ********************************************/
+
 static unsigned int treeHeight = 0;
 static unsigned char buffer[MAX_CHARS];
 static Code_t codesTable[MAX_CHARS];
 
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
+
 static HeapNodePtr createNewNode(char item, unsigned freq);
 static HeapPtr initHeap(unsigned capacity);
 static void swapNodes(HeapNodePtr *node_a, HeapNodePtr *node_b);
 
 /**** LOCAL FUNCTION DEFINITIONS **********************************************/
+
 static HeapNodePtr createNewNode(char item, unsigned freq)
 {
     HeapNodePtr temp = (HeapNodePtr)malloc(sizeof(struct HeapNode));
@@ -199,6 +206,8 @@ static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int
         strcpy(codesTable[root->item].code, buffer);
     }
 }
+
+/**** GLOBAL FUNCTION DEFINITIONS *********************************************/
 
 unsigned char *getCodeForChar(unsigned char ch)
 {
