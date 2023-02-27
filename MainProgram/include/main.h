@@ -12,8 +12,9 @@
 /**** TYPEDEFS ****************************************************************/
 
 typedef struct {
-    unsigned int numOfUniqueChars;
     unsigned int freq[MAX_CHARS];
+    long long numOfAllChars;
+    unsigned char numOfUniqueChars;
 } tableOfFrequencies_t;
 
 /**** GLOBAL FUNCTIONS DECLARATIONS *******************************************/

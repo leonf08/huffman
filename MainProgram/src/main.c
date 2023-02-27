@@ -19,6 +19,8 @@ int main(int argc, char **argv)
         case 4:
             if (0 == strcmp(argv[2], "-c")) {
                 archiveFile(argv[1], argv[3]);
+            } else if (0 == strcmp(argv[2], "-x")) {
+                unzipArchive(argv[1], argv[3]);
             }
             break;
         default:

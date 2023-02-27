@@ -33,13 +33,23 @@ static Code_t codesTable[MAX_CHARS];
 
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
 
-static HeapNodePtr createNewNode(char item, unsigned freq);
+static HeapNodePtr createNewNode(unsigned char item, unsigned freq);
 static HeapPtr initHeap(unsigned capacity);
 static void swapNodes(HeapNodePtr *node_a, HeapNodePtr *node_b);
+static void heapifyMin(HeapPtr heap, int index);
+static int checkIfSizeOne(HeapPtr heap);
+static HeapNodePtr extractMin(HeapPtr heap);
+static void insertNodeHeap(HeapPtr heap, HeapNodePtr node);
+static void buildHeap(HeapPtr heap);
+static int isLeaf(HeapNodePtr root);
+static HeapPtr createAndBuildHeap(const tableOfFrequencies_t *freqTable);
+static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable);
+static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int depth);
+static void traverseTree(const tableOfFrequencies_t *freqTable, FILE *inputFilePtr, size_t fileSize, FILE *outputFilePtr, HeapNodePtr root);
 
 /**** LOCAL FUNCTION DEFINITIONS **********************************************/
 
-static HeapNodePtr createNewNode(char item, unsigned freq)
+static HeapNodePtr createNewNode(unsigned char item, unsigned freq)
 {
     HeapNodePtr temp = (HeapNodePtr)malloc(sizeof(struct HeapNode));
     if (!isMemoryAllocated(temp)) {
@@ -98,7 +108,8 @@ static void heapifyMin(HeapPtr heap, int index)
     }
 }
 
-static int checkIfSizeOne(HeapPtr heap) {
+static int checkIfSizeOne(HeapPtr heap)
+{
   return (heap->size == 1);
 }
 
@@ -140,7 +151,8 @@ static void buildHeap(HeapPtr heap)
     }
 }
 
-static int isLeaf(HeapNodePtr root) {
+static int isLeaf(HeapNodePtr root)
+{
   return !(root->left) && !(root->right);
 }
 
@@ -152,7 +164,7 @@ static HeapPtr createAndBuildHeap(const tableOfFrequencies_t *freqTable)
     unsigned int j = 0;
     for (unsigned int i = 0; i < MAX_CHARS; i++) {
         if (freqTable->freq[i] != 0) {
-            heap->array[j] = createNewNode((char)i, freqTable->freq[i]);
+            heap->array[j] = createNewNode((unsigned char)i, freqTable->freq[i]);
             j++;
         }
     }
@@ -206,6 +218,37 @@ static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int
     }
 }
 
+static void traverseTree(const tableOfFrequencies_t *freqTable, FILE *inputFilePtr, size_t fileSize, FILE *outputFilePtr, HeapNodePtr root)
+{
+    HeapNodePtr currentNode = root;
+    unsigned char byte, bit;
+    long long chNum = freqTable->numOfAllChars;
+
+    for (int i = 0; i < fileSize; i++) {
+        if (1 != fread(&byte, sizeof(unsigned char), 1, inputFilePtr)) {
+            fprintf(stderr, "Reading error");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int i = 7; i >= 0; i--) {
+            bit = (byte >> i) & 0x01;
+            if (bit == 0) {
+                currentNode = currentNode->left;
+            } else {
+                currentNode = currentNode->right;
+            }
+
+            if (isLeaf(currentNode)) {
+                if (chNum == 0)
+                    break;
+                fwrite(&currentNode->item, sizeof(unsigned char), 1, outputFilePtr);
+                currentNode = root;
+                chNum--;
+            }
+        }
+    }
+}
+
 /**** GLOBAL FUNCTION DEFINITIONS *********************************************/
 
 char *getCodeForChar(unsigned char ch)
@@ -217,4 +260,10 @@ void compressData(const tableOfFrequencies_t *freqTable)
 {
     HeapNodePtr root = buildHuffmanTree(freqTable);    
     encodeItemsOfTree(root, codesTable, 0);
+}
+
+void decompressData(const tableOfFrequencies_t *freqTable, FILE *inputFilePtr, size_t fileSize, FILE *outputFilePtr)
+{
+    HeapNodePtr root = buildHuffmanTree(freqTable);
+    traverseTree(freqTable, inputFilePtr, fileSize, outputFilePtr, root);
 }

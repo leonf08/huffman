@@ -4,5 +4,6 @@
 /**** GLOBAL FUNCTIONS DECLARATIONS *******************************************/
 
 void archiveFile(const char *inputFileName, const char *outputFileName);
+void unzipArchive(const char *inputFileName, const char *outputFileName);
 
 #endif /* TEXTFILEHANDLER_H */
