@@ -46,6 +46,7 @@ static HeapPtr createAndBuildHeap(const tableOfFrequencies_t *freqTable);
 static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable);
 static void encodeItemsOfTree(HeapNodePtr root, Code_t *codesTable, unsigned int depth);
 static void traverseTree(const tableOfFrequencies_t *freqTable, FILE *inputFilePtr, size_t fileSize, FILE *outputFilePtr, HeapNodePtr root);
+static void freeAllocatedMemory(HeapNodePtr *root);
 
 /**** LOCAL FUNCTION DEFINITIONS **********************************************/
 
@@ -249,6 +250,23 @@ static void traverseTree(const tableOfFrequencies_t *freqTable, FILE *inputFileP
     }
 }
 
+static void freeAllocatedMemory(HeapNodePtr *root)
+{
+    HeapNodePtr *current = root;
+    if ((*current)->left) {
+        freeAllocatedMemory(&(*current)->left);
+    }
+
+    if ((*current)->right) {
+        freeAllocatedMemory(&(*current)->right);
+    }
+
+    if (isLeaf(*current)) {
+        free(*current);
+        *current = NULL;
+    }
+}
+
 /**** GLOBAL FUNCTION DEFINITIONS *********************************************/
 
 char *getCodeForChar(unsigned char ch)
@@ -260,10 +278,14 @@ void compressData(const tableOfFrequencies_t *freqTable)
 {
     HeapNodePtr root = buildHuffmanTree(freqTable);    
     encodeItemsOfTree(root, codesTable, 0);
+
+    freeAllocatedMemory(&root);
 }
 
 void decompressData(const tableOfFrequencies_t *freqTable, FILE *inputFilePtr, size_t fileSize, FILE *outputFilePtr)
 {
     HeapNodePtr root = buildHuffmanTree(freqTable);
     traverseTree(freqTable, inputFilePtr, fileSize, outputFilePtr, root);
+
+    freeAllocatedMemory(&root);
 }

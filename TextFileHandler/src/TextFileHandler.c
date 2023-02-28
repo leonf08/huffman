@@ -10,7 +10,7 @@
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
 
 static tableOfFrequencies_t * buildFreqTable(FILE *inputFilePtr);
-static void processInputFile(FILE *inputFilePtr, const char *outputFileName, tableOfFrequencies_t *freqTable);
+static void processInputFile(FILE *inputFilePtr, FILE *outputFilePtr, tableOfFrequencies_t *freqTable);
 static void writeCompressedDataInFile(FILE *outputFilePtr, void *data, size_t size);
 static tableOfFrequencies_t * extractFreqTable(FILE *inputFilePtr);
 
@@ -36,17 +36,11 @@ static tableOfFrequencies_t * buildFreqTable(FILE *inputFilePtr)
     return freqTable;
 }
 
-static void processInputFile(FILE *inputFilePtr, const char *outputFileName, tableOfFrequencies_t *freqTable)
+static void processInputFile(FILE *inputFilePtr, FILE *outputFilePtr, tableOfFrequencies_t *freqTable)
 {
     unsigned int ch;
     unsigned char buffer = 0, bitCount = 0;
     char *code;
-
-    FILE *outputFilePtr = fopen(outputFileName, "wb");
-    if (outputFilePtr == NULL) {
-        fprintf(stderr, "Failed to open file %s", outputFileName);
-        exit(EXIT_FAILURE);
-    }
 
     writeCompressedDataInFile(outputFilePtr, freqTable, sizeof(tableOfFrequencies_t));
 
@@ -67,9 +61,6 @@ static void processInputFile(FILE *inputFilePtr, const char *outputFileName, tab
     if (bitCount > 0) {
         writeCompressedDataInFile(outputFilePtr, &buffer, sizeof(unsigned char));
     }
-
-    fclose(inputFilePtr);
-    fclose(outputFilePtr);
 }
 
 static void writeCompressedDataInFile(FILE *outputFilePtr, void *data, size_t size)
@@ -112,12 +103,22 @@ void archiveFile(const char *inputFileName, const char *outputFileName)
         exit(EXIT_FAILURE);
     }
 
+    FILE *outputFilePtr = fopen(outputFileName, "w");
+    if (inputFilePtr == NULL) {
+        perror("Failed to open file");
+        exit(EXIT_FAILURE);
+    }
+
     tableOfFrequencies_t *freqTable = buildFreqTable(inputFilePtr);
     compressData(freqTable);
 
     rewind(inputFilePtr);
 
-    processInputFile(inputFilePtr, outputFileName, freqTable);        
+    processInputFile(inputFilePtr, outputFilePtr, freqTable);
+
+    free(freqTable);
+    fclose(inputFilePtr);
+    fclose(outputFilePtr);
 }
 
 void unzipArchive(const char *inputFileName, const char *outputFileName)
@@ -143,6 +144,7 @@ void unzipArchive(const char *inputFileName, const char *outputFileName)
     fileSize -= sizeof(tableOfFrequencies_t);
     decompressData(freqTable, inputFilePtr, fileSize, outputFilePtr);
 
+    free(freqTable);
     fclose(inputFilePtr);
     fclose(outputFilePtr);
 }
