@@ -65,7 +65,7 @@ static void processInputFile(FILE *inputFilePtr, FILE *outputFilePtr, tableOfFre
 
 static void writeCompressedDataInFile(FILE *outputFilePtr, void *data, size_t size)
 {
-    size_t count;
+    size_t count = 0;
     if (size == sizeof(unsigned char)) {
         count = fwrite((unsigned char *)data, sizeof(unsigned char), 1, outputFilePtr);
     } else if (size == sizeof(tableOfFrequencies_t)) {
