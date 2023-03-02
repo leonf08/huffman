@@ -6,5 +6,6 @@
 char *getCodeForChar(unsigned char ch);
 void compressData(const tableOfFrequencies_t *freqTable);
 void decompressData(const tableOfFrequencies_t *freqTable, FILE *inputFilePtr, size_t fileSize, FILE *outputFilePtr);
+void freeCodesTable(void);
 
 #endif /* HUFFMANALGORITHM_H */
