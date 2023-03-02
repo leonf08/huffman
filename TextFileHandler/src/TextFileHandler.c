@@ -117,6 +117,7 @@ void archiveFile(const char *inputFileName, const char *outputFileName)
     processInputFile(inputFilePtr, outputFilePtr, freqTable);
 
     free(freqTable);
+    freeCodesTable();
     fclose(inputFilePtr);
     fclose(outputFilePtr);
 }
