@@ -34,8 +34,8 @@ static Code_t codesTable[MAX_CHARS];
 
 /**** LOCAL FUNCTION DECLARATIONS *********************************************/
 
-static HeapNodePtr createNewNode(unsigned char item, unsigned freq);
-static HeapPtr initHeap(unsigned capacity);
+static HeapNodePtr createNewNode(unsigned char item, unsigned int freq);
+static HeapPtr initHeap(unsigned int capacity);
 static void swapNodes(HeapNodePtr *node_a, HeapNodePtr *node_b);
 static void heapifyMin(HeapPtr heap, int index);
 static bool checkIfSizeOne(HeapPtr heap);
@@ -60,7 +60,7 @@ Creates new node in binary heap
 @return pointer to node
 */
 
-static HeapNodePtr createNewNode(unsigned char item, unsigned freq)
+static HeapNodePtr createNewNode(unsigned char item, unsigned int freq)
 {
     HeapNodePtr temp = (HeapNodePtr)malloc(sizeof(struct HeapNode));
     if (!isMemoryAllocated(temp)) {
@@ -287,7 +287,7 @@ to be encoded
 static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable)
 {
     /* Create and build min-heap */
-    HeapNodePtr left, right, top;
+    HeapNodePtr left, right, top, root;
     HeapPtr heap = createAndBuildHeap(freqTable);
 
     /* Build Huffman tree */
@@ -303,8 +303,16 @@ static HeapNodePtr buildHuffmanTree(const tableOfFrequencies_t *freqTable)
         insertNodeHeap(heap, top);
     }
 
+    root = extractMin(heap);
+
+    /* Deallocate memory used by heap */
+    free(heap->array);
+    heap->array = NULL;
+    free(heap);
+    heap = NULL;
+
     /* Return pointer to the root of the tree */
-    return extractMin(heap);
+    return root;
 }
 
 /*

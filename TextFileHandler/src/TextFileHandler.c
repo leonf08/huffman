@@ -27,7 +27,7 @@ each character in a file and puts them in an array
 
 static tableOfFrequencies_t * buildFreqTable(FILE *inputFilePtr)
 {
-    tableOfFrequencies_t *freqTable = (tableOfFrequencies_t *)malloc(sizeof(tableOfFrequencies_t));
+    tableOfFrequencies_t *freqTable = (tableOfFrequencies_t *)calloc(1, sizeof(tableOfFrequencies_t));
     if (!isMemoryAllocated(freqTable)) {
         exit(EXIT_FAILURE);
     }
@@ -163,7 +163,7 @@ void archiveFile(const char *inputFileName, const char *outputFileName)
 
     /* Open output archive file */
     FILE *outputFilePtr = fopen(outputFileName, "wb");
-    if (inputFilePtr == NULL) {
+    if (outputFilePtr == NULL) {
         perror("Failed to open file");
         exit(EXIT_FAILURE);
     }
@@ -180,6 +180,7 @@ void archiveFile(const char *inputFileName, const char *outputFileName)
 
     /* Deallocate memory and close all the files */
     free(freqTable);
+    freqTable = NULL;
     freeCodesTable();
     fclose(inputFilePtr);
     fclose(outputFilePtr);
@@ -205,7 +206,7 @@ void unzipArchive(const char *inputFileName, const char *outputFileName)
 
     /* Open output text file with decompressed data */
     FILE *outputFilePtr = fopen(outputFileName, "w");
-    if (inputFilePtr == NULL) {
+    if (outputFilePtr == NULL) {
         perror("Failed to open file");
         exit(EXIT_FAILURE);
     }
@@ -219,6 +220,7 @@ void unzipArchive(const char *inputFileName, const char *outputFileName)
 
     /* Deallocate memory and close all the files */
     free(freqTable);
+    freqTable = NULL;
     fclose(inputFilePtr);
     fclose(outputFilePtr);
 }
