@@ -7,6 +7,19 @@
 
 /**** MAIN ********************************************************************/
 
+/*
+Main function: accepts two option [-c][-x]
+Usage example: huff [INPUTFILE] [-c][-x] [OUTPUTFILE]
+Options:
+    -c - compress INPUTFILE (text file) into OUTPUTFILE (archive)
+    -x - unzip INPUTFILE (archive) into OUTPUTFILE (text file)
+
+@param argc: Number of arguments from the command line
+@param argv: Array of arguments from the command line
+
+@return 0
+ */
+
 int main(int argc, char **argv)
 {
     switch (argc)
@@ -31,6 +44,14 @@ int main(int argc, char **argv)
 }
 
 /**** GLOBAL FUNCTIONS DEFINITIONS ********************************************/
+
+/* 
+This function checks if memory is dynamically allocated 
+
+@param ptr: Address of memory that should be allocated
+
+@return Bool value: true if memory was successfully allocated, otherwise false
+*/
 
 bool isMemoryAllocated(const void *const ptr)
 {
